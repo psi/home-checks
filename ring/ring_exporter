@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+
+import time
+
+from os import environ
+from prometheus_client import start_http_server, Gauge
+from ring_doorbell import Ring
+
+ring = Ring(environ['RING_EMAIL'], environ['RING_PASSWORD'])
+
+RING_BATTERY_PERCENT = Gauge('ring_battery_percent', "Percentage of the device's battery remaining", ['name', 'family'])
+RING_WIFI_SIGNAL_STRENGTH = Gauge('ring_wifi_signal_dbm', "RSSI in dBm of the device's WiFi signal", ['name', 'family'])
+
+def update_metrics():
+    for device in list(ring.doorbells + ring.chimes + ring.stickup_cams):
+        device.update()
+        RING_BATTERY_PERCENT.labels(name=device.name, family=device.family).set(device.battery_life)
+        RING_WIFI_SIGNAL_STRENGTH.labels(name=device.name, family=device.family).set(device.wifi_signal_strength)
+
+    time.sleep(300)
+
+if __name__ == '__main__':
+    start_http_server(8000)
+    while True:
+        update_metrics()
