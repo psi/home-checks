@@ -14,12 +14,7 @@ $ export RING_PASSWORD=<YOUR RING.COM PASSWORD>
 ### Usage
 
 ```shell
-# Check battery life of your doorbell
-$ ./check_ring -t doorbell -a battery
+$ ./ring_exporter
 
-# Check WiFi signal strength of your doorbell
-$ ./check_ring -t doorbell -a wifi
-
-# Check WiFi signal strength of your Chime
-$ ./check_ring -t chime -a wifi
+$ curl http://localhost:8000
 ```
