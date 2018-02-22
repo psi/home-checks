@@ -10,12 +10,17 @@ ring = Ring(environ['RING_EMAIL'], environ['RING_PASSWORD'])
 
 RING_BATTERY_PERCENT = Gauge('ring_battery_percent', "Percentage of the device's battery remaining", ['name', 'family'])
 RING_WIFI_SIGNAL_STRENGTH = Gauge('ring_wifi_signal_dbm', "RSSI in dBm of the device's WiFi signal", ['name', 'family'])
+RING_ONLINE = Gauge('ring_online_boolean', "Boolean indicating if the device is currencly onlin", ['name', 'family'])
 
 def update_metrics():
     for device in list(ring.doorbells + ring.chimes + ring.stickup_cams):
         device.update()
+
+        onlinei_status = 1 if device.connection_status == 'online' else 0
+
         RING_BATTERY_PERCENT.labels(name=device.name, family=device.family).set(device.battery_life)
         RING_WIFI_SIGNAL_STRENGTH.labels(name=device.name, family=device.family).set(device.wifi_signal_strength)
+        RING_ONLINE.labels(name=device.name, family=device.family).set(online_status)
 
     time.sleep(300)
 
